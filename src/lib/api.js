@@ -7,7 +7,7 @@ const getApiBaseUrl = () => {
   if (typeof window !== 'undefined' && window.location.hostname) {
     return `http://${window.location.hostname}:5672/api`;
   }
-  return 'http://localhost:5672/api';
+  return 'https://musclegreedbackend.weprixe.in/api';
 };
 
 const api = axios.create({
