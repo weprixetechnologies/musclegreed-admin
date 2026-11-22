@@ -30,13 +30,29 @@ export function setupApiInterceptors(tokenGetter, refreshFn, logoutFn) {
 
 // Request interceptor: dynamic host adaptation & attach access token
 api.interceptors.request.use(
-  (config) => {
+  async (config) => {
     // Automatically keep API baseURL aligned with browser origin host (e.g. localhost or LAN IP)
     // to prevent cross-site cookie blocking on HTTP
     if (typeof window !== 'undefined' && !process.env.NEXT_PUBLIC_API_URL && window.location.hostname) {
       config.baseURL = `http://${window.location.hostname}:5672/api`;
     }
-    const token = getAccessToken();
+
+    const isAuthEndpoint =
+      config?.url?.includes('/admin/login') ||
+      config?.url?.includes('/admin/refresh-token') ||
+      config?.url?.includes('/admin/logout');
+
+    let token = getAccessToken();
+
+    // If no token in memory and not an auth endpoint, await in-flight or trigger silent refresh
+    if (!token && !isAuthEndpoint && refreshTokensHandler) {
+      try {
+        token = await refreshTokensHandler();
+      } catch {
+        // Fall back to sending request
+      }
+    }
+
     if (token && !config.headers.Authorization) {
       config.headers.Authorization = `Bearer ${token}`;
     }

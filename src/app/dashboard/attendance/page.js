@@ -85,11 +85,13 @@ export default function AttendanceDashboardPage() {
   const isAdminOrSuper = ['superadmin', 'admin'].includes(admin?.role?.toLowerCase());
 
   useEffect(() => {
-    const today = getLocalDateString();
-    setTodayDate(today);
-    setSelectedDate(today);
-    fetchMemberAttendanceSheet(today);
-  }, []);
+    if (admin) {
+      const today = getLocalDateString();
+      setTodayDate(today);
+      setSelectedDate(today);
+      fetchMemberAttendanceSheet(today);
+    }
+  }, [admin]);
 
   const fetchMemberAttendanceSheet = async (date) => {
     setLoadingSheet(true);

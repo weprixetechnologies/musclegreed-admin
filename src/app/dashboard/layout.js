@@ -15,6 +15,22 @@ export default function DashboardLayout({ children }) {
     }
   }, [admin, loading, router]);
 
+  // Prevent protected child pages from mounting and triggering unauthenticated API calls
+  if (loading) {
+    return (
+      <div className="fixed inset-0 z-50 flex items-center justify-center bg-zinc-950">
+        <div className="flex flex-col items-center gap-3">
+          <div className="w-10 h-10 border-2 border-amber-500 border-t-transparent rounded-full animate-spin"></div>
+          <span className="text-xs text-zinc-500 font-medium">Verifying session...</span>
+        </div>
+      </div>
+    );
+  }
+
+  if (!admin) {
+    return null;
+  }
+
   return (
     <div className="min-h-screen bg-zinc-950 text-zinc-100 relative">
       <Sidebar />
@@ -23,16 +39,6 @@ export default function DashboardLayout({ children }) {
           {children}
         </main>
       </div>
-
-      {/* Auth verification overlay if still verifying */}
-      {loading && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center bg-zinc-950">
-          <div className="flex flex-col items-center gap-3">
-            <div className="w-10 h-10 border-2 border-amber-500 border-t-transparent rounded-full animate-spin"></div>
-            <span className="text-xs text-zinc-500 font-medium">Verifying session...</span>
-          </div>
-        </div>
-      )}
     </div>
   );
 }
